@@ -21,6 +21,11 @@ user_config = {
     "database": DB_NAME,
 }
 
+print(PASSWORD)
+print(USER)
+print(HOST)
+print(DB_NAME)
+
 
 @app.exception_handler(HTTPException)
 def validation_exception_handler(request: Request, exc: HTTPException):
@@ -36,6 +41,8 @@ def get_db():
     try:
         yield cursor
         cnx.commit()
+    except Exception as e:
+        print(e)
     finally:
         cursor.close()
         cnx.close()
