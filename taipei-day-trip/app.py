@@ -10,19 +10,19 @@ load_dotenv()
 app = FastAPI()
 
 PASSWORD = os.getenv("PASSWORD")
-USER = os.getenv("USER")
+DB_USER = os.getenv("DB_USER")
 HOST = os.getenv("HOST")
 DB_NAME = os.getenv("DB_NAME")
 
 user_config = {
-    "user": USER,
+    "user": DB_USER,
     "password": PASSWORD,
     "host": HOST,
     "database": DB_NAME,
 }
 
 print(PASSWORD)
-print(USER)
+print(DB_USER)
 print(HOST)
 print(DB_NAME)
 
