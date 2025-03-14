@@ -1,6 +1,7 @@
 from typing import List, Optional
 from fastapi import *
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, field_validator
 import mysql.connector
 import json
@@ -21,18 +22,23 @@ user_config = {
     "database": DB_NAME,
 }
 
-print(PASSWORD)
-print(DB_USER)
-print(HOST)
-print(DB_NAME)
-
 
 @app.exception_handler(HTTPException)
-def validation_exception_handler(request: Request, exc: HTTPException):
+def http_validation_exception_handler(request: Request, exc: HTTPException):
     if exc.status_code == 500:
-        return JSONResponse(content={"error": True, "message": exc.detail}, status_code=exc.status_code)
+        return JSONResponse(content={"error": True, "message": exc.detail}, status_code=500)
     if exc.status_code == 400:
         return JSONResponse(content={"error": True, "message": exc.detail}, status_code=exc.status_code)
+    if exc.status_code == 404:
+        return JSONResponse(content={"error": True, "message": exc.detail}, status_code=exc.status_code)
+
+
+@app.exception_handler(RequestValidationError)
+def request_validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={
+        "error": True,
+        "message": exc.errors()
+    })
 
 
 def get_db():
@@ -41,8 +47,6 @@ def get_db():
     try:
         yield cursor
         cnx.commit()
-    except Exception as e:
-        print(e)
     finally:
         cursor.close()
         cnx.close()
@@ -141,7 +145,7 @@ def get_attractions(page: int = Query(ge=0), keyword: str = None, db=Depends(get
         return {"nextPage": next_page, "data": data}
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="伺服器錯誤，請稍後再嘗試")
 
 
 @app.get("/api/attraction/{attractionId}", response_model=attraction_id_response)
@@ -180,3 +184,9 @@ def get_mrt_stations(request: Request, db=Depends(get_db)):
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.get("/{full_path:path}")
+def page_not_found(full_path: str):
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                        detail="Page was not found")
