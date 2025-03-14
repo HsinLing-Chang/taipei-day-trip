@@ -139,7 +139,7 @@ def get_attractions(page: int = Query(ge=0), keyword: str = None, db=Depends(get
             "SELECT COUNT(*) AS count FROM attractions")
         total_date = db.fetchone()
 
-        next_page = None if total_date.get(
+        next_page = None if len(data) < 12 or total_date.get(
             "count") < 12*(page+1) or not data else (page + 1)
 
         return {"nextPage": next_page, "data": data}
