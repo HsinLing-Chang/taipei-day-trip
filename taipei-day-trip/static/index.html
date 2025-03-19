@@ -1,11 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Index</title>
-</head>
-<body>
-  
-</body>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Page</title>
+    <link rel="stylesheet" href="../static/styles/style.css" />
+  </head>
+  <body>
+    <header>
+      <nav class="navbar">
+        <div class="logo-wrapper">
+          <div class="logo">台北一日遊</div>
+
+          <ul>
+            <a href="#"><li>預定行程</li></a>
+            <a href="#"><li>登入/註冊</li></a>
+          </ul>
+        </div>
+      </nav>
+    </header>
+    <div class="search-bg">
+      <div class="slogan-search-wrapper">
+        <div>
+          <div class="slogan">
+            <h2 class="slogan-big">輕鬆享受台北一日遊</h2>
+            <p style="font-size: 16px; font-weight: 700">
+              探索每個角落，體驗城市的深度旅遊行程
+            </p>
+          </div>
+          <div class="search">
+            <input
+              class="search-input"
+              type="text"
+              placeholder="輸入景點名稱查詢"
+            /><spin class="search-img" onclick="search()"></spin>
+          </div>
+        </div>
+      </div>
+    </div>
+    <main>
+      <div class="art-list-bar">
+        <div class="slide-left" onclick="slideLeft()">
+          <img src="../static/images/left-btn.png" alt="mrt-list-left-btn" />
+        </div>
+        <div class="list-wrapper">
+          <ul class="mrt-list" onclick="mrtSearch(event)"></ul>
+        </div>
+        <div class="slide-right" onclick="slideRight()">
+          <img src="../static/images/right-btn.png" alt="mrt-list-left-btn" />
+        </div>
+      </div>
+      <div class="attractions"></div>
+      <div class="load-more" style="height: 10px"></div>
+    </main>
+
+    <footer>
+      <div class="copyright">COPYRIGHT &copy 2021 台北一日遊</div>
+    </footer>
+    <script defer>
+      const searchInput = document.querySelector(".search-input");
+      const attractionContainer = document.querySelector(".attractions");
+      const mrtList = document.querySelector(".mrt-list");
+      searchInput.value = "";
+      let render = true;
+      let nextPage = true;
+      let page = 0;
+      let searchKeyword;
+      async function getMRT() {
+        const mrt = await fetch("http://18.180.198.102:8000/api/mrts");
+        const mrtData = await mrt.json();
+        if (mrtData.data) {
+          mrtList.innerHTML = mrtData.data
+            .map((mrt) => `<li>${mrt}</li>`)
+            .join("");
+        }
+      }
+      function mrtSearch(e) {
+        if (e.target.tagName === "LI") {
+          searchInput.value = e.target.textContent;
+          search();
+        }
+      }
+      function slideRight() {
+        const scrollAmount = 300;
+        mrtList.scrollLeft += scrollAmount;
+      }
+      function slideLeft() {
+        const scrollAmount = 300;
+        mrtList.scrollLeft -= scrollAmount;
+      }
+      function search() {
+        attractionContainer.innerHTML = "";
+        searchKeyword = searchInput.value;
+        nextPage = true;
+        page = 0;
+        renderImage(searchKeyword);
+      }
+      async function renderImage(keyword) {
+        render = false;
+        try {
+          baseURL = keyword
+            ? `http://18.180.198.102:8000/api/attractions?page=${page}&keyword=${keyword}`
+            : `http://18.180.198.102:8000/api/attractions?page=${page}`;
+          const attractions = await fetch(baseURL);
+          const attractionsData = await attractions.json();
+          nextPage = attractionsData.nextPage;
+          // console.log(attractionsData);
+          if (attractionsData.data) {
+            attractionsData.data.forEach((data) => {
+              attractionContainer.innerHTML += `<div>
+          <div class="img-container">
+            <img src="${data.images[0]}" alt="${data.name}" />
+            <div class="attraction-name">${data.name}</div>
+          </div>
+          <div class="detail">
+            <div>${data.mrt}</div>
+            <div>${data.category}</div>
+          </div>
+        </div>`;
+            });
+            page++;
+          }
+        } catch (e) {
+          console.log(e);
+        } finally {
+          render = true;
+        }
+      }
+      const loadMore = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && nextPage && render) {
+            renderImage(searchKeyword || null);
+          }
+        },
+        { rootMargin: "100px" }
+      );
+
+      loadMore.observe(document.querySelector(".load-more"));
+
+      getMRT();
+    </script>
+  </body>
 </html>

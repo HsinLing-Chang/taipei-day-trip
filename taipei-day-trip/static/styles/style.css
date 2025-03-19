@@ -1,0 +1,238 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+header {
+  position: sticky;
+  top: 0;
+  background-color: #ffffff;
+  z-index: 1;
+  /* box-shadow: 0 1px 3px black; */
+}
+.navbar {
+  height: 54px;
+}
+.logo-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.logo-wrapper .logo {
+  font-family: "Noto Sans TC", sans-serif;
+  font-size: 30px;
+  line-height: 34px;
+  font-weight: 700;
+  color: #448899;
+}
+.logo-wrapper ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.logo-wrapper ul a {
+  padding: 10px;
+  text-decoration: none;
+  height: 34px;
+  font-size: 14px;
+  color: black;
+}
+/* .search-bg {
+  margin: 75px auto;
+} */
+.search-bg {
+  width: 100%;
+  background-image: url("../images/taipei_full.png");
+  background-position: top;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 320px;
+  padding-top: 75px;
+  padding-bottom: 76px;
+}
+.slogan-search-wrapper {
+  padding: 10px;
+  max-width: 1200px;
+  margin: auto;
+}
+.slogan {
+  margin-bottom: 25px;
+  color: #ffffff;
+}
+.slogan-big {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  line-height: 41px;
+}
+.search {
+  width: 460px;
+}
+.search input {
+  width: 400px;
+  height: 46px;
+  vertical-align: middle;
+  padding: 15px;
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 5px 0 0 5px;
+}
+.search .search-img {
+  display: inline-block;
+  background-color: #448899;
+  background-image: url("../images/search.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  vertical-align: middle;
+  background-size: 30px 30px;
+  height: 46px;
+  width: 60px;
+  border-radius: 0 5px 5px 0;
+  &:hover {
+    cursor: pointer;
+  }
+}
+main {
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+.art-list-bar {
+  margin: auto;
+  max-width: 1200px;
+  width: 100%;
+  padding: 0 15px 20px;
+  /* padding-bottom: 20px; */
+  display: flex;
+  align-items: center;
+}
+
+.list-wrapper {
+  width: 90%;
+  flex-grow: 1;
+  padding: 13px 10px;
+}
+
+.art-list-bar ul {
+  overflow-x: hidden;
+  width: 100%;
+  list-style: none;
+  display: flex;
+  align-items: center;
+
+  flex-wrap: nowrap;
+  scroll-behavior: smooth;
+}
+.art-list-bar ul li {
+  padding: 0 15px;
+  height: 24px;
+  /* line-height: 24px; */
+  white-space: nowrap;
+  &:hover {
+    cursor: pointer;
+  }
+}
+.attractions {
+  padding: 15px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  /* grid-template-rows: repeat(3, 1fr); */
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 30px;
+}
+.attractions > div {
+  /* width: 200px; */
+  height: 242px;
+  /* background-color: red; */
+}
+.img-container {
+  position: relative;
+}
+.img-container img {
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  width: 100%;
+  height: 197px;
+}
+.img-container .attraction-name {
+  position: absolute;
+  bottom: 0;
+  padding: 10px;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+  font-weight: bold;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.attractions .detail {
+  border: 1px solid rgb(183, 183, 183);
+  border-radius: 3px;
+  padding: 10px;
+  height: 45px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  white-space: nowrap;
+}
+
+footer {
+  width: 100%;
+  height: 104px;
+  background-color: #757575;
+  padding: 40px;
+  text-align: center;
+}
+footer .copyright {
+  width: 100%;
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .art-list-bar {
+    padding: 0 0 20px;
+  }
+  .attractions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .list-wrapper {
+    width: 80%;
+    flex-grow: 1;
+  }
+}
+
+@media (max-width: 576px) {
+  main {
+    padding: 15px;
+  }
+  .search input {
+    width: 260px;
+  }
+  .art-list-bar {
+    width: 100%;
+    padding: 0 0 20px;
+  }
+  .list-wrapper {
+    width: 60%;
+    flex: 1;
+    font-size: 14px;
+  }
+  .attractions {
+    margin: 0;
+    padding: 0;
+    grid-template-columns: repeat(1, 1fr);
+  }
+}

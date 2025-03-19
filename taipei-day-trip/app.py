@@ -3,12 +3,15 @@ from fastapi import *
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, field_validator
+from fastapi.staticfiles import StaticFiles
 import mysql.connector
 import json
 import os
 from dotenv import load_dotenv
 load_dotenv()
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 PASSWORD = os.getenv("PASSWORD")
 DB_USER = os.getenv("DB_USER")
@@ -126,21 +129,23 @@ def get_attractions(page: int = Query(ge=0), keyword: str = None, db=Depends(get
             params.extend([keyword, f"%{keyword}%"])
         if conditions:
             sql_query += " AND ".join(conditions)
-        sql_query += " GROUP BY attractions.id LIMIT 12 OFFSET %s "
+        sql_query += " GROUP BY attractions.id LIMIT 13 OFFSET %s"
         params.extend([OFFSET])
 
         db.execute(sql_query, tuple(params))
         data = db.fetchall()
 
+        next_page = (page + 1) if len(data) > 12 else None
+        data = data[:-1] if len(data) > 12 else data
+
         for row in data:
             row["images"] = json.loads(row.get("images"))
 
-        db.execute(
-            "SELECT COUNT(*) AS count FROM attractions")
-        total_date = db.fetchone()
+        # db.execute(
+        #     "SELECT COUNT(*) AS count FROM attractions")
+        # total_date = db.fetchone()  total_date.get("count") < 12*(page+1)
 
-        next_page = None if len(data) < 12 or total_date.get(
-            "count") < 12*(page+1) or not data else (page + 1)
+        # next_page = None if len(data) < 12 or  not data else (page + 1)
 
         return {"nextPage": next_page, "data": data}
     except Exception as e:
