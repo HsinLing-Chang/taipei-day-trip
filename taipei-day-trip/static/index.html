@@ -10,11 +10,11 @@
     <header>
       <nav class="navbar">
         <div class="logo-wrapper">
-          <div class="logo">台北一日遊</div>
+          <div class="logo"><h2>台北一日遊</h2></div>
 
           <ul>
-            <a href="#"><li>預定行程</li></a>
-            <a href="#"><li>登入/註冊</li></a>
+            <li>預定行程</li>
+            <li>登入/註冊</li>
           </ul>
         </div>
       </nav>
@@ -23,7 +23,7 @@
       <div class="slogan-search-wrapper">
         <div>
           <div class="slogan">
-            <h2 class="slogan-big">輕鬆享受台北一日遊</h2>
+            <h2 class="slogan-big">輕鬆享受台北一日悠閒</h2>
             <p style="font-size: 16px; font-weight: 700">
               探索每個角落，體驗城市的深度旅遊行程
             </p>
@@ -33,7 +33,7 @@
               class="search-input"
               type="text"
               placeholder="輸入景點名稱查詢"
-            /><spin class="search-img" onclick="search()"></spin>
+            /><span class="search-img" onclick="search()"></span>
           </div>
         </div>
       </div>
@@ -70,9 +70,11 @@
         const mrt = await fetch("http://18.180.198.102:8000/api/mrts");
         const mrtData = await mrt.json();
         if (mrtData.data) {
-          mrtList.innerHTML = mrtData.data
-            .map((mrt) => `<li>${mrt}</li>`)
-            .join("");
+          for (let mrt of mrtData.data) {
+            const liTag = document.createElement("li");
+            liTag.textContent = mrt;
+            mrtList.appendChild(liTag);
+          }
         }
       }
       function mrtSearch(e) {
@@ -90,7 +92,7 @@
         mrtList.scrollLeft -= scrollAmount;
       }
       function search() {
-        attractionContainer.innerHTML = "";
+        attractionContainer.textContent = "";
         searchKeyword = searchInput.value;
         nextPage = true;
         page = 0;
@@ -107,18 +109,36 @@
           nextPage = attractionsData.nextPage;
           // console.log(attractionsData);
           if (attractionsData.data) {
-            attractionsData.data.forEach((data) => {
-              attractionContainer.innerHTML += `<div>
-          <div class="img-container">
-            <img src="${data.images[0]}" alt="${data.name}" />
-            <div class="attraction-name">${data.name}</div>
-          </div>
-          <div class="detail">
-            <div>${data.mrt}</div>
-            <div>${data.category}</div>
-          </div>
-        </div>`;
-            });
+            function newElement(tag, className, textContent = "") {
+              const element = document.createElement(tag);
+              if (className) element.classList.add(className);
+              if (textContent) element.textContent = textContent;
+              return element;
+            }
+            for (let data of attractionsData.data) {
+              const dataContainer = newElement("div", "data-container");
+              const imgContainer = newElement("div", "img-container");
+              const imgElement = newElement("img", null);
+              imgElement.src = data.images[0];
+              imgElement.alt = data.name;
+              const attractionName = newElement(
+                "div",
+                "attraction-name",
+                data.name
+              );
+              imgContainer.appendChild(imgElement);
+              imgContainer.appendChild(attractionName);
+
+              const detail = newElement("div", "detail");
+              const mrtDate = newElement("div", null, data.mrt);
+              const categoryDate = newElement("div", null, data.category);
+
+              detail.appendChild(mrtDate);
+              detail.appendChild(categoryDate);
+              dataContainer.appendChild(imgContainer);
+              dataContainer.appendChild(detail);
+              attractionContainer.appendChild(dataContainer);
+            }
             page++;
           }
         } catch (e) {
@@ -137,7 +157,7 @@
       );
 
       loadMore.observe(document.querySelector(".load-more"));
-
+      renderImage(searchKeyword || null);
       getMRT();
     </script>
   </body>
