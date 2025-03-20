@@ -262,7 +262,7 @@ footer .copyright {
 
 @media (max-width: 576px) {
   main {
-    padding: 15px;
+    padding: 40px 15px;
   }
   .slogan-search-wrapper {
     padding: 20px 20px;
@@ -280,7 +280,6 @@ footer .copyright {
   .list-wrapper {
     width: 60%;
     flex: 1;
-    font-size: 14px;
   }
   .attractions {
     margin: 0;
