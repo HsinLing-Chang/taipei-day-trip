@@ -67,11 +67,11 @@ class attraction_response(BaseModel):
     lng: float
     images: List[str] = None
 
-    @field_validator("description")
-    @classmethod
-    def trunc_description(cls, v):
-        maxlength = 50
-        return v[:50] + "..." if len(v) > maxlength else v
+    # @field_validator("description")
+    # @classmethod
+    # def trunc_description(cls, v):
+    #     maxlength = 50
+    #     return v[:50] + "..." if len(v) > maxlength else v
 
 
 class api_response(BaseModel):

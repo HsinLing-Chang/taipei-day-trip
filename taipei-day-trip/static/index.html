@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Home Page</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2&family=Noto+Sans+TC:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="../static/styles/style.css" />
   </head>
   <body>
@@ -38,7 +42,7 @@
         </div>
       </div>
     </div>
-    <main>
+    <main class="index-main">
       <div class="art-list-bar">
         <div class="slide-left" onclick="slideLeft()">
           <img src="../static/images/left-btn.png" alt="mrt-list-left-btn" />
@@ -116,6 +120,8 @@
               return element;
             }
             for (let data of attractionsData.data) {
+              const aTag = newElement("a", "attraction-link");
+              aTag.href = `attraction/${data.id}`;
               const dataContainer = newElement("div", "data-container");
               const imgContainer = newElement("div", "img-container");
               const imgElement = newElement("img", null);
@@ -137,12 +143,13 @@
               detail.appendChild(categoryDate);
               dataContainer.appendChild(imgContainer);
               dataContainer.appendChild(detail);
-              attractionContainer.appendChild(dataContainer);
+              aTag.appendChild(dataContainer);
+              attractionContainer.appendChild(aTag);
             }
             page++;
           }
         } catch (e) {
-          console.log(e);
+          console.log("Error occured: " + e);
         } finally {
           render = true;
         }

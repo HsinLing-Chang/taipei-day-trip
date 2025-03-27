@@ -1,11 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Attraction</title>
-</head>
-<body>
-  
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attraction</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2&family=Noto+Sans+TC:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../static/styles/style.css" />
+  </head>
+  <body>
+    <header style="border-bottom: 1px solid #e8e8e8">
+      <nav class="navbar">
+        <div class="logo-wrapper">
+          <div class="logo">
+            <a href="/" style="text-decoration: none"><h2>台北一日遊</h2></a>
+          </div>
+          <ul>
+            <li>預定行程</li>
+            <li>登入/註冊</li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+    <section class="img-profile">
+      <div class="img-current">
+        <div class="img-left"></div>
+        <div class="img-right"></div>
+        <div class="dot-container">
+          <ul class="dot-list"></ul>
+        </div>
+        <img class="profile-img" />
+      </div>
+      <div class="attraction-profile">
+        <h3 class="Bold24 attraction-title" style="margin-bottom: 15px">
+          Loading...
+        </h3>
+        <p class="Med16 cate-mrt" style="margin-bottom: 20px"></p>
+        <form class="profile-form">
+          <p class="Bold16">訂購導覽行程</p>
+          <p class="Med16">以此景點為中心的一日行程，帶您探索城市角落故事</p>
+          <p>
+            <label class="Bold16" for="date">選擇日期：</label>
+            <input
+              type="date"
+              name="date"
+              id="date"
+              style="border: none; height: 35px"
+            />
+          </p>
+          <p>
+            <label class="Bold16" for="time">選擇時間：</label>
+            <input
+              class="Med16 first-half-day"
+              type="radio"
+              name="time"
+              id="time"
+              value="上半天"
+              checked
+              style="accent-color: #448899"
+            /><span style="margin-right: 5px">上半天</span>
+            <input
+              class="Med16 second-half-day"
+              type="radio"
+              name="time"
+              id="time"
+              value="下半天"
+              style="accent-color: #448899"
+            /><span>下半天</span>
+          </p>
+          <p>
+            <label class="Bold16" for="charge">導覽費用：</label>
+            <span class="Med16 fee" style="letter-spacing: 1px"
+              >新台幣2000元</span
+            >
+          </p>
+          <button class="profile-btn">開始預約行程</button>
+        </form>
+      </div>
+    </section>
+    <div class="single-line"></div>
+    <section class="infors">
+      <p class="Med16 description" style="margin-bottom: 20px"></p>
+      <p class="Bold16">景點地址：</p>
+      <p class="Med16 address" style="margin-bottom: 20px">Loading...</p>
+      <p class="Bold16">交通方式：</p>
+      <p class="Med16 transport">Loading...</p>
+    </section>
+    <footer>
+      <div class="copyright">COPYRIGHT &copy 2021 台北一日遊</div>
+    </footer>
+    <script defer>
+      const fee = document.querySelector(".fee");
+      document.querySelectorAll("input[name='time']").forEach((radio) => {
+        radio.addEventListener("change", (e) => {
+          console.log(e.target.value);
+          if (e.target.value == "上半天") {
+            fee.textContent = "新台幣2000元";
+          } else {
+            fee.textContent = "新台幣2500元";
+          }
+        });
+      });
+
+      const pathname = window.location.pathname.split("/");
+      const attractionTitle = document.querySelector(".attraction-title");
+      const cateMRT = document.querySelector(".cate-mrt");
+      const description = document.querySelector(".description");
+      const address = document.querySelector(".address");
+      const transport = document.querySelector(".transport");
+      const imgLeft = document.querySelector(".img-left");
+
+      const img = document.querySelector(".profile-img");
+
+      async function getData() {
+        const attraction = await fetch(
+          `http://18.180.198.102:8000/api/attraction/${pathname[2]}`
+        );
+        attractionData = await attraction.json();
+        // console.log(attractionData.data);
+        attractionTitle.textContent = attractionData.data.name;
+        cateMRT.textContent = `${attractionData.data.category} at ${attractionData.data.mrt}`;
+        description.textContent = attractionData.data.description;
+        address.textContent = attractionData.data.address;
+        transport.textContent = attractionData.data.transport;
+        const images = attractionData.data.images;
+        const dotList = document.querySelector(".dot-list");
+        for (let i in images) {
+          const dot = document.createElement("li");
+          dot.className = "dot";
+          dotList.appendChild(dot);
+        }
+        img.src = images[0];
+        return images;
+      }
+      Promise.all([getData()]).then((res) => {
+        const images = res[0];
+        let index = 0;
+        const dots = document.querySelectorAll(".dot");
+        dots[index].classList.add("active");
+        dots.forEach((dot, i) => {
+          dot.addEventListener("click", () => {
+            img.classList.remove("profile-img");
+            dots[index].classList.remove("active");
+            index = i;
+            img.src = images[index];
+            dots[index].classList.add("active");
+            setTimeout(() => {
+              img.classList.add("profile-img");
+            }, 50);
+          });
+        });
+
+        function slideLeft() {
+          img.classList.remove("profile-img");
+          dots[index].classList.remove("active");
+          index = (index - 1 + images.length) % images.length;
+          dots[index].classList.add("active");
+          img.src = images[index];
+          setTimeout(() => {
+            img.classList.add("profile-img");
+          }, 50);
+        }
+        function slideRight() {
+          img.classList.remove("profile-img");
+          dots[index].classList.remove("active");
+          index = (index + 1) % images.length;
+          dots[index].classList.add("active");
+          img.src = images[index];
+          setTimeout(() => {
+            img.classList.add("profile-img");
+          }, 50);
+        }
+        document
+          .querySelector(".img-left")
+          .addEventListener("click", slideLeft);
+        document
+          .querySelector(".img-right")
+          .addEventListener("click", slideRight);
+      });
+    </script>
+  </body>
 </html>
