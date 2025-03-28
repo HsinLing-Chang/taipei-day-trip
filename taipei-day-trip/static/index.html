@@ -1,11 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Index</title>
-</head>
-<body>
-  
-</body>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Page</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2&family=Noto+Sans+TC:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../static/styles/style.css" />
+  </head>
+  <body>
+    <header>
+      <nav class="navbar">
+        <div class="logo-wrapper">
+          <div class="logo"><h2>台北一日遊</h2></div>
+
+          <ul>
+            <li>預定行程</li>
+            <li>登入/註冊</li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+    <div class="search-bg">
+      <div class="slogan-search-wrapper">
+        <div>
+          <div class="slogan">
+            <h2 class="slogan-big">輕鬆享受台北一日悠閒</h2>
+            <p style="font-size: 16px; font-weight: 700">
+              探索每個角落，體驗城市的深度旅遊行程
+            </p>
+          </div>
+          <div class="search">
+            <input
+              class="search-input"
+              type="text"
+              placeholder="輸入景點名稱查詢"
+            /><span class="search-img" onclick="search()"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <main class="index-main">
+      <div class="art-list-bar">
+        <div class="slide-left" onclick="slideLeft()">
+          <img src="../static/images/left-btn.png" alt="mrt-list-left-btn" />
+        </div>
+        <div class="list-wrapper">
+          <ul class="mrt-list" onclick="mrtSearch(event)"></ul>
+        </div>
+        <div class="slide-right" onclick="slideRight()">
+          <img src="../static/images/right-btn.png" alt="mrt-list-left-btn" />
+        </div>
+      </div>
+      <div class="attractions"></div>
+      <div class="load-more" style="height: 10px"></div>
+    </main>
+
+    <footer>
+      <div class="copyright">COPYRIGHT &copy 2021 台北一日遊</div>
+    </footer>
+    <script defer>
+      const searchInput = document.querySelector(".search-input");
+      const attractionContainer = document.querySelector(".attractions");
+      const mrtList = document.querySelector(".mrt-list");
+      searchInput.value = "";
+      let render = true;
+      let nextPage = true;
+      let page = 0;
+      let searchKeyword;
+      async function getMRT() {
+        const mrt = await fetch("http://18.180.198.102:8000/api/mrts");
+        const mrtData = await mrt.json();
+        if (mrtData.data) {
+          for (let mrt of mrtData.data) {
+            const liTag = document.createElement("li");
+            liTag.textContent = mrt;
+            mrtList.appendChild(liTag);
+          }
+        }
+      }
+      function mrtSearch(e) {
+        if (e.target.tagName === "LI") {
+          searchInput.value = e.target.textContent;
+          search();
+        }
+      }
+      function slideRight() {
+        const scrollAmount = 300;
+        mrtList.scrollLeft += scrollAmount;
+      }
+      function slideLeft() {
+        const scrollAmount = 300;
+        mrtList.scrollLeft -= scrollAmount;
+      }
+      function search() {
+        attractionContainer.textContent = "";
+        searchKeyword = searchInput.value;
+        nextPage = true;
+        page = 0;
+        renderImage(searchKeyword);
+      }
+      async function renderImage(keyword) {
+        render = false;
+        try {
+          baseURL = keyword
+            ? `http://18.180.198.102:8000/api/attractions?page=${page}&keyword=${keyword}`
+            : `http://18.180.198.102:8000/api/attractions?page=${page}`;
+          const attractions = await fetch(baseURL);
+          const attractionsData = await attractions.json();
+          nextPage = attractionsData.nextPage;
+          // console.log(attractionsData);
+          if (attractionsData.data) {
+            function newElement(tag, className, textContent = "") {
+              const element = document.createElement(tag);
+              if (className) element.classList.add(className);
+              if (textContent) element.textContent = textContent;
+              return element;
+            }
+            for (let data of attractionsData.data) {
+              const aTag = newElement("a", "attraction-link");
+              aTag.href = `attraction/${data.id}`;
+              const dataContainer = newElement("div", "data-container");
+              const imgContainer = newElement("div", "img-container");
+              const imgElement = newElement("img", null);
+              imgElement.src = data.images[0];
+              imgElement.alt = data.name;
+              const attractionName = newElement(
+                "div",
+                "attraction-name",
+                data.name
+              );
+              imgContainer.appendChild(imgElement);
+              imgContainer.appendChild(attractionName);
+
+              const detail = newElement("div", "detail");
+              const mrtDate = newElement("div", null, data.mrt);
+              const categoryDate = newElement("div", null, data.category);
+
+              detail.appendChild(mrtDate);
+              detail.appendChild(categoryDate);
+              dataContainer.appendChild(imgContainer);
+              dataContainer.appendChild(detail);
+              aTag.appendChild(dataContainer);
+              attractionContainer.appendChild(aTag);
+            }
+            page++;
+          }
+        } catch (e) {
+          console.log("Error occured: " + e);
+        } finally {
+          render = true;
+        }
+      }
+      const loadMore = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && nextPage && render) {
+            renderImage(searchKeyword || null);
+          }
+        },
+        { rootMargin: "100px" }
+      );
+
+      loadMore.observe(document.querySelector(".load-more"));
+      renderImage(searchKeyword || null);
+      getMRT();
+    </script>
+  </body>
 </html>
