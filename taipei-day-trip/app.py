@@ -19,7 +19,7 @@ DB_USER = os.getenv("DB_USER")
 HOST = os.getenv("HOST")
 DB_NAME = os.getenv("DB_NAME")
 JWT_SECRET = os.getenv("JWT_SECRET")
-ALGORITHM = os.getenv("ALGORITHM")
+JWT_ALGORITHM = os.getenv("ALGORITHM")
 
 user_config = {
     "user": DB_USER,
@@ -234,16 +234,27 @@ def sign_up(formData: sign_up_form, db=Depends(get_db)):
 @app.put("/api/user/auth")
 def sign_in(formDate: sing_in_form, db=Depends(get_db)):
     try:
+        print("Email:", formDate.email, type(formDate.email))
+        print("Password:", formDate.password, type(formDate.password))
         db.execute("SELECT id, name, email FROM member WHERE email = %s AND password = %s",
                    (formDate.email, formDate.password))
+
         user_data = db.fetchone()
+        print("user_data:", user_data)
+        print("id:", user_data.get("id"), type(user_data.get("id")))
+        print("name:", user_data.get("name"))
+        print("email:", user_data.get("email"))
         if user_data:
             payload = {
                 "id": user_data.get("id"),
                 "name": user_data.get("name"),
                 "email": user_data.get("email"),
             }
-            token = jwt.encode(payload, JWT_SECRET, ALGORITHM)
+            print("payload:", payload)
+            print("JWT_SECRET:", JWT_SECRET)
+            print("JWT_SECRET:", JWT_ALGORITHM)
+            token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
+            print(token)
             return {"token": token}
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="帳號或密碼錯誤，請重新嘗試。")
@@ -260,7 +271,7 @@ def get_user(request: Request):
         header = request.headers.get("Authorization")
         if header:
             token = header.split(" ")[1]
-            user_data = jwt.decode(token, JWT_SECRET, ALGORITHM)
+            user_data = jwt.decode(token, JWT_SECRET, JWT_ALGORITHM)
             if user_data:
                 return {"data": user_data}
         return {"data": None}
