@@ -234,27 +234,16 @@ def sign_up(formData: sign_up_form, db=Depends(get_db)):
 @app.put("/api/user/auth")
 def sign_in(formDate: sing_in_form, db=Depends(get_db)):
     try:
-        print("Email:", formDate.email, type(formDate.email))
-        print("Password:", formDate.password, type(formDate.password))
         db.execute("SELECT id, name, email FROM member WHERE email = %s AND password = %s",
                    (formDate.email, formDate.password))
-
         user_data = db.fetchone()
-        print("user_data:", user_data)
-        print("id:", user_data.get("id"), type(user_data.get("id")))
-        print("name:", user_data.get("name"))
-        print("email:", user_data.get("email"))
         if user_data:
             payload = {
                 "id": user_data.get("id"),
                 "name": user_data.get("name"),
                 "email": user_data.get("email"),
             }
-            print("payload:", payload)
-            print("JWT_SECRET:", JWT_SECRET)
-            print("JWT_SECRET:", JWT_ALGORITHM)
             token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
-            print(token)
             return {"token": token}
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="帳號或密碼錯誤，請重新嘗試。")
