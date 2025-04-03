@@ -2,11 +2,12 @@ from typing import List, Optional
 from fastapi import *
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.exceptions import RequestValidationError
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, Field, EmailStr
 from fastapi.staticfiles import StaticFiles
 import mysql.connector
 import json
 import os
+import jwt
 from dotenv import load_dotenv
 load_dotenv()
 app = FastAPI()
@@ -17,6 +18,8 @@ PASSWORD = os.getenv("PASSWORD")
 DB_USER = os.getenv("DB_USER")
 HOST = os.getenv("HOST")
 DB_NAME = os.getenv("DB_NAME")
+JWT_SECRET = os.getenv("JWT_SECRET")
+ALGORITHM = os.getenv("ALGORITHM")
 
 user_config = {
     "user": DB_USER,
@@ -85,6 +88,24 @@ class attraction_id_response(BaseModel):
 
 class mrt_response(BaseModel):
     data: List[str]
+
+
+# class sign_up_form():
+#     def __init__(self, name: str = Form(...), email: str = Form(...), password: str = Form(...)):
+#         self.name = name
+#         self.email = email
+#         self.password = password
+
+
+class sign_up_form(BaseModel):
+    name: str = Field(...)
+    email:  str = Field(...)
+    password: str = Field(...)
+
+
+class sing_in_form(BaseModel):
+    email:  str = Field(...)
+    password: str = Field(...)
 
 
 # Static Pages (Never Modify Code in this Block)
@@ -186,6 +207,65 @@ def get_mrt_stations(request: Request, db=Depends(get_db)):
         res = db.fetchall()
         mrt_stations = [item.get("mrt") for item in res]
         return {"data": mrt_stations}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.post("/api/user")
+def sign_up(formData: sign_up_form, db=Depends(get_db)):
+    try:
+        db.execute("SELECT email FROM member WHERE email = %s",
+                   (formData.email,))
+        email = db.fetchone()
+        if email:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="帳號已被註冊，請重新嘗試")
+        db.execute("INSERT INTO member(name, email, password) VALUES (%s, %s, %s)",
+                   (formData.name, formData.email, formData.password))
+        return {"ok": True}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.put("/api/user/auth")
+def sign_in(formDate: sing_in_form, db=Depends(get_db)):
+    try:
+        db.execute("SELECT id, name, email FROM member WHERE email = %s AND password = %s",
+                   (formDate.email, formDate.password))
+        user_data = db.fetchone()
+        if user_data:
+            payload = {
+                "id": user_data.get("id"),
+                "name": user_data.get("name"),
+                "email": user_data.get("email"),
+            }
+            token = jwt.encode(payload, JWT_SECRET, ALGORITHM)
+            return {"token": token}
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="帳號或密碼錯誤，請重新嘗試。")
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.get("/api/user/auth")
+def get_user(request: Request):
+    try:
+        header = request.headers.get("Authorization")
+        if header:
+            token = header.split(" ")[1]
+            user_data = jwt.decode(token, JWT_SECRET, ALGORITHM)
+            if user_data:
+                return {"data": user_data}
+        return {"data": None}
+    except jwt.exceptions.PyJWTError as e:
+        return {"data": None}
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
