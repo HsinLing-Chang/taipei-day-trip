@@ -18,7 +18,7 @@
 
           <ul>
             <li>預定行程</li>
-            <li>登入/註冊</li>
+            <li class="sign">Loading</li>
           </ul>
         </div>
       </nav>
@@ -61,6 +61,7 @@
     <footer>
       <div class="copyright">COPYRIGHT &copy 2021 台北一日遊</div>
     </footer>
+    <script defer src="../static/pop_up_dialog.js"></script>
     <script defer>
       const searchInput = document.querySelector(".search-input");
       const attractionContainer = document.querySelector(".attractions");
@@ -70,6 +71,7 @@
       let nextPage = true;
       let page = 0;
       let searchKeyword;
+
       async function getMRT() {
         const mrt = await fetch("http://18.180.198.102:8000/api/mrts");
         const mrtData = await mrt.json();
@@ -113,12 +115,6 @@
           nextPage = attractionsData.nextPage;
           // console.log(attractionsData);
           if (attractionsData.data) {
-            function newElement(tag, className, textContent = "") {
-              const element = document.createElement(tag);
-              if (className) element.classList.add(className);
-              if (textContent) element.textContent = textContent;
-              return element;
-            }
             for (let data of attractionsData.data) {
               const aTag = newElement("a", "attraction-link");
               aTag.href = `attraction/${data.id}`;
