@@ -5,6 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, field_validator, Field, EmailStr
 from fastapi.staticfiles import StaticFiles
 import mysql.connector
+from datetime import datetime, timezone, timedelta
 import json
 import os
 import jwt
@@ -238,10 +239,12 @@ def sign_in(formDate: sing_in_form, db=Depends(get_db)):
                    (formDate.email, formDate.password))
         user_data = db.fetchone()
         if user_data:
+            expire_time = datetime.now(tz=timezone.utc) + timedelta(days=7)
             payload = {
                 "id": user_data.get("id"),
                 "name": user_data.get("name"),
                 "email": user_data.get("email"),
+                "exp": expire_time
             }
             token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
             return {"token": token}
