@@ -2,11 +2,12 @@ from typing import List, Optional
 from fastapi import *
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.exceptions import RequestValidationError
-from pydantic import BaseModel, field_validator, Field, EmailStr
+from pydantic import BaseModel, Field, validator
 from fastapi.staticfiles import StaticFiles
 import mysql.connector
 from datetime import datetime, timezone, timedelta
 import json
+import re
 import os
 import jwt
 from dotenv import load_dotenv
@@ -36,16 +37,42 @@ def http_validation_exception_handler(request: Request, exc: HTTPException):
         return JSONResponse(content={"error": True, "message": exc.detail}, status_code=500)
     if exc.status_code == 400:
         return JSONResponse(content={"error": True, "message": exc.detail}, status_code=exc.status_code)
+    if exc.status_code == 403:
+        return JSONResponse(content={"error": True, "message": exc.detail}, status_code=exc.status_code)
     if exc.status_code == 404:
         return JSONResponse(content={"error": True, "message": exc.detail}, status_code=exc.status_code)
 
 
 @app.exception_handler(RequestValidationError)
 def request_validation_exception_handler(request: Request, exc: RequestValidationError):
-    return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={
+    return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={
         "error": True,
         "message": exc.errors()
     })
+
+
+def verifytoken_wrapper(return_none: bool = False):
+    def verify_token(authorization: Optional[str] = Header(None)):
+        try:
+            if not authorization or not authorization.startswith("Bearer"):
+                if return_none:
+                    return None
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN, detail="Invaild or missing token")
+            token = authorization.split(" ")[1]
+            userDate = jwt.decode(token, JWT_SECRET, JWT_ALGORITHM)
+            return userDate
+        except jwt.ExpiredSignatureError as e:
+            if return_none:
+                return None
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Token has expired")
+        except jwt.exceptions.PyJWTError as e:
+            if return_none:
+                return None
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token")
+    return verify_token
 
 
 def get_db():
@@ -91,13 +118,6 @@ class mrt_response(BaseModel):
     data: List[str]
 
 
-# class sign_up_form():
-#     def __init__(self, name: str = Form(...), email: str = Form(...), password: str = Form(...)):
-#         self.name = name
-#         self.email = email
-#         self.password = password
-
-
 class sign_up_form(BaseModel):
     name: str = Field(...)
     email:  str = Field(...)
@@ -109,7 +129,37 @@ class sing_in_form(BaseModel):
     password: str = Field(...)
 
 
+class booking_form_validator(BaseModel):
+    attractionID: int
+    date: str
+    time: str
+    price: int
+
+    @validator("date")
+    def validate_dates(cls, val):
+        regex1 = r'\d{4}-\d{2}-\d{2}'
+        if not re.match(regex1, val):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="日期格式不正確")
+        return val
+
+    @validator("time")
+    def validate_date(cls, val):
+        if val not in ["morning", "afternoon"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="時間欄位必須為'morning'或'afternoon'")
+        return val
+
+    @validator("price")
+    def validate_price(cls, val):
+        if val not in [2000, 2500]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="價格不正確")
+        return val
+
 # Static Pages (Never Modify Code in this Block)
+
+
 @app.get("/", include_in_schema=False)
 async def index(request: Request):
     return FileResponse("./static/index.html", media_type="text/html")
@@ -138,9 +188,9 @@ def get_attractions(page: int = Query(ge=0), keyword: str = None, db=Depends(get
         next_page = page + 1
         sql_query = """
         SELECT attractions.id, attractions.name, attractions.category, attractions.description, attractions.address, attractions.transport, attractions.mrt, attractions.lat, attractions.lng,
-        JSON_ARRAYAGG(img_urls.url) AS images 
+        JSON_ARRAYAGG(img_urls.url) AS images
         FROM attractions
-        INNER JOIN img_urls ON attractions.id = img_urls.attraction_id 
+        INNER JOIN img_urls ON attractions.id = img_urls.attraction_id
 
         """
         conditions = []
@@ -180,9 +230,9 @@ def get_attraction_by_id(attractionId: int, request: Request, db=Depends(get_db)
     try:
         sql_query = """
         SELECT attractions.id, attractions.name, attractions.category, attractions.description, attractions.address, attractions.transport, attractions.mrt, attractions.lat, attractions.lng,
-        JSON_ARRAYAGG(img_urls.url) AS images 
+        JSON_ARRAYAGG(img_urls.url) AS images
         FROM attractions
-        INNER JOIN img_urls ON attractions.id = img_urls.attraction_id 
+        INNER JOIN img_urls ON attractions.id = img_urls.attraction_id
         WHERE attractions.id = %s
         GROUP BY attractions.id
         """
@@ -258,17 +308,69 @@ def sign_in(formDate: sing_in_form, db=Depends(get_db)):
 
 
 @app.get("/api/user/auth")
-def get_user(request: Request):
+def get_user(user_data=Depends(verifytoken_wrapper(return_none=True))):
     try:
-        header = request.headers.get("Authorization")
-        if header:
-            token = header.split(" ")[1]
-            user_data = jwt.decode(token, JWT_SECRET, JWT_ALGORITHM)
-            if user_data:
-                return {"data": user_data}
+        if user_data:
+            return {"data": user_data}
         return {"data": None}
-    except jwt.exceptions.PyJWTError as e:
-        return {"data": None}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+# booking routes
+@app.post("/api/booking")
+def booking(booking_form: booking_form_validator, db=Depends(get_db), user_data=Depends(verifytoken_wrapper())):
+    try:
+        id = user_data.get("id")
+        params = (booking_form.attractionID, booking_form.date,
+                  booking_form.time, booking_form.price, id)
+        if id:
+            db.execute(
+                "SELECT * FROM booking WHERE user_id = %s", (id,))
+            res = db.fetchone()
+            if res:
+                update_query = "UPDATE booking set attractionID = %s,  booking_date = %s, time = %s, price= %s WHERE user_id = %s"
+                db.execute(update_query, params)
+            else:
+                db.execute(
+                    "INSERT INTO booking (attractionID, booking_date, time, price, user_id) VALUES(%s,%s,%s,%s,%s)", params)
+        return {"ok": True}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.get("/api/booking")
+def get_booking(db=Depends(get_db), user_data=Depends(verifytoken_wrapper())):
+    try:
+        id = user_data.get("id")
+        db.execute(
+            "SELECT attractionID, booking_date, time, price FROM booking WHERE user_id = %s", (id,))
+        booking_data = db.fetchone()
+        if booking_data:
+            db.execute(" SELECT a.id, name, address, url AS image FROM attractions a JOIN img_urls i ON a.id = i.attraction_id WHERE a.id = %s LIMIT 1;", (
+                booking_data.get("attractionID"),))
+            attraction = db.fetchone()
+            return {"data": {
+                "attraction": attraction,
+                "date": booking_data.get("booking_date"),
+                "time": booking_data.get("time"),
+                "price": booking_data.get("price")
+            }}
+        else:
+            return {"data": None}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.delete("/api/booking")
+def delete_booking(request: Request, db=Depends(get_db), user_data=Depends(verifytoken_wrapper())):
+    try:
+        id = user_data.get("id")
+        db.execute("DELETE FROM booking WHERE user_id = %s", (id,))
+        return {"ok": True}
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

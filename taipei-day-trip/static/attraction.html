@@ -18,7 +18,7 @@
             <a href="/" style="text-decoration: none"><h2>台北一日遊</h2></a>
           </div>
           <ul>
-            <li>預定行程</li>
+            <li class="booking">預定行程</li>
             <li class="sign">Loading</li>
           </ul>
         </div>
@@ -38,7 +38,7 @@
           Loading...
         </h3>
         <p class="Med16 cate-mrt" style="margin-bottom: 20px"></p>
-        <form class="profile-form">
+        <form class="profile-form" action="/api/booking" method="post">
           <p class="Bold16">訂購導覽行程</p>
           <p class="Med16">以此景點為中心的一日行程，帶您探索城市角落故事</p>
           <p>
@@ -48,6 +48,7 @@
               name="date"
               id="date"
               style="border: none; height: 35px"
+              required
             />
           </p>
           <p>
@@ -57,7 +58,7 @@
               type="radio"
               name="time"
               id="time"
-              value="上半天"
+              value="morning"
               checked
               style="accent-color: #448899"
             /><span style="margin-right: 5px">上半天</span>
@@ -65,7 +66,7 @@
               class="Med16 second-half-day"
               type="radio"
               name="time"
-              value="下半天"
+              value="afternoon"
               style="accent-color: #448899"
             /><span>下半天</span>
           </p>
@@ -91,100 +92,6 @@
       <div class="copyright">COPYRIGHT &copy 2021 台北一日遊</div>
     </footer>
     <script defer src="../static/pop_up_dialog.js"></script>
-    <script defer>
-      const fee = document.querySelector(".fee");
-      document.querySelectorAll("input[name='time']").forEach((radio) => {
-        radio.addEventListener("change", (e) => {
-          console.log(e.target.value);
-          if (e.target.value == "上半天") {
-            fee.textContent = "新台幣2000元";
-          } else {
-            fee.textContent = "新台幣2500元";
-          }
-        });
-      });
-
-      const pathname = window.location.pathname.split("/");
-      const attractionTitle = document.querySelector(".attraction-title");
-      const cateMRT = document.querySelector(".cate-mrt");
-      const description = document.querySelector(".description");
-      const address = document.querySelector(".address");
-      const transport = document.querySelector(".transport");
-      const imgLeft = document.querySelector(".img-left");
-
-      const img = document.querySelector(".profile-img");
-
-      async function getData() {
-        const attraction = await fetch(
-          `http://18.180.198.102:8000/api/attraction/${pathname[2]}`
-        );
-        attractionData = await attraction.json();
-        // console.log(attractionData.data);
-        attractionTitle.textContent = attractionData.data.name;
-        cateMRT.textContent = `${attractionData.data.category} at ${attractionData.data.mrt}`;
-        description.textContent = attractionData.data.description;
-        address.textContent = attractionData.data.address;
-        transport.textContent = attractionData.data.transport;
-        const images = attractionData.data.images;
-        preLoadImages = [];
-        images.forEach((src, i) => {
-          preLoadImages[i] = new Image();
-          preLoadImages[i].src = src;
-        });
-        const dotList = document.querySelector(".dot-list");
-        for (let i in images) {
-          const dot = document.createElement("li");
-          dot.className = "dot";
-          dotList.appendChild(dot);
-        }
-        img.src = preLoadImages[0].src;
-        return preLoadImages;
-      }
-      Promise.all([getData()]).then((preLoadImages) => {
-        const images = preLoadImages[0];
-        let index = 0;
-        const dots = document.querySelectorAll(".dot");
-        dots[index].classList.add("active");
-        dots.forEach((dot, i) => {
-          dot.addEventListener("click", () => {
-            img.classList.remove("profile-img");
-            dots[index].classList.remove("active");
-            index = i;
-            img.src = images[index].src;
-            dots[index].classList.add("active");
-            setTimeout(() => {
-              img.classList.add("profile-img");
-            }, 50);
-          });
-        });
-
-        function slideLeft() {
-          img.classList.remove("profile-img");
-          dots[index].classList.remove("active");
-          index = (index - 1 + images.length) % images.length;
-          dots[index].classList.add("active");
-          img.src = images[index].src;
-          setTimeout(() => {
-            img.classList.add("profile-img");
-          }, 50);
-        }
-        function slideRight() {
-          img.classList.remove("profile-img");
-          dots[index].classList.remove("active");
-          index = (index + 1) % images.length;
-          dots[index].classList.add("active");
-          img.src = images[index].src;
-          setTimeout(() => {
-            img.classList.add("profile-img");
-          }, 50);
-        }
-        document
-          .querySelector(".img-left")
-          .addEventListener("click", slideLeft);
-        document
-          .querySelector(".img-right")
-          .addEventListener("click", slideRight);
-      });
-    </script>
+    <script defer src="../static/attraction.js"></script>
   </body>
 </html>
