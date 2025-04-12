@@ -19,7 +19,7 @@
           </div>
           <ul>
             <li>預定行程</li>
-            <li>登入/註冊</li>
+            <li class="sign">Loading</li>
           </ul>
         </div>
       </nav>
@@ -65,7 +65,6 @@
               class="Med16 second-half-day"
               type="radio"
               name="time"
-              id="time"
               value="下半天"
               style="accent-color: #448899"
             /><span>下半天</span>
@@ -91,6 +90,7 @@
     <footer>
       <div class="copyright">COPYRIGHT &copy 2021 台北一日遊</div>
     </footer>
+    <script defer src="../static/pop_up_dialog.js"></script>
     <script defer>
       const fee = document.querySelector(".fee");
       document.querySelectorAll("input[name='time']").forEach((radio) => {
@@ -126,17 +126,22 @@
         address.textContent = attractionData.data.address;
         transport.textContent = attractionData.data.transport;
         const images = attractionData.data.images;
+        preLoadImages = [];
+        images.forEach((src, i) => {
+          preLoadImages[i] = new Image();
+          preLoadImages[i].src = src;
+        });
         const dotList = document.querySelector(".dot-list");
         for (let i in images) {
           const dot = document.createElement("li");
           dot.className = "dot";
           dotList.appendChild(dot);
         }
-        img.src = images[0];
-        return images;
+        img.src = preLoadImages[0].src;
+        return preLoadImages;
       }
-      Promise.all([getData()]).then((res) => {
-        const images = res[0];
+      Promise.all([getData()]).then((preLoadImages) => {
+        const images = preLoadImages[0];
         let index = 0;
         const dots = document.querySelectorAll(".dot");
         dots[index].classList.add("active");
@@ -145,7 +150,7 @@
             img.classList.remove("profile-img");
             dots[index].classList.remove("active");
             index = i;
-            img.src = images[index];
+            img.src = images[index].src;
             dots[index].classList.add("active");
             setTimeout(() => {
               img.classList.add("profile-img");
@@ -158,7 +163,7 @@
           dots[index].classList.remove("active");
           index = (index - 1 + images.length) % images.length;
           dots[index].classList.add("active");
-          img.src = images[index];
+          img.src = images[index].src;
           setTimeout(() => {
             img.classList.add("profile-img");
           }, 50);
@@ -168,7 +173,7 @@
           dots[index].classList.remove("active");
           index = (index + 1) % images.length;
           dots[index].classList.add("active");
-          img.src = images[index];
+          img.src = images[index].src;
           setTimeout(() => {
             img.classList.add("profile-img");
           }, 50);

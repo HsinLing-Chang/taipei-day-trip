@@ -410,6 +410,113 @@ li[class="dot active"] {
   margin: 0 auto 40px;
   min-height: 362px;
 }
+/* 遮罩 */
+.overlay {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.25);
+  display: none;
+}
+.overlay.active {
+  display: block;
+}
+/* 登入表單 */
+.form-container {
+  z-index: 3;
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  border-radius: 5px;
+  box-shadow: 0 4px 60px 0 #aaaaaa;
+  background-color: #ffffff;
+  display: none;
+}
+.close-btn-container {
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  padding: 7px;
+  &:hover {
+    cursor: pointer;
+  }
+}
+.close-btn {
+  background-image: url(../images/icon_close.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  width: 16px;
+  height: 16px;
+}
+
+.sign-up.active {
+  display: block;
+}
+.sign-in.active {
+  display: block;
+}
+.decorator-bar {
+  width: 100%;
+  height: 10px;
+  background: linear-gradient(to right, #66aabb, #337788);
+  border-radius: 5px 5px 0 0;
+}
+.general-form {
+  width: 100%;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.general-form h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #666666;
+  align-items: center;
+  margin: 0 auto 15px;
+}
+.general-form > input {
+  height: 47px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  padding: 15px;
+  color: #757575;
+  border: 1px solid #cccccc;
+}
+.general-form > button {
+  height: 46px;
+  background-color: #448899;
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 400;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  &:hover {
+    cursor: pointer;
+  }
+}
+.error-msg {
+  color: red;
+  margin: 10px auto;
+}
+.general-form .form-msg {
+  margin: 0 auto;
+  color: #666666;
+}
+.form-msg .click-signup,
+.click-signin {
+  text-decoration: underline;
+  &:hover {
+    cursor: pointer;
+    color: #000000;
+  }
+}
 footer {
   width: 100%;
   height: 104px;
