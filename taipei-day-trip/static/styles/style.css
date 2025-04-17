@@ -620,6 +620,35 @@ li[class="dot active"] {
     cursor: pointer;
   }
 }
+/* thankyou */
+.order-success-msg {
+  max-width: 1200px;
+  text-align: center;
+  margin: 40px auto 0;
+  color: #666666;
+}
+.order-msg,
+.order-number {
+  text-align: center;
+  margin: 50px auto;
+  color: #666666;
+}
+/* tappay style */
+.tpfield-label,
+.tpfield {
+  vertical-align: middle;
+}
+.tpfield {
+  padding: 10px;
+  height: 38px;
+  border-radius: 5px;
+  border: 1px solid #e8e8e8;
+  width: 200px;
+  color: #757575;
+}
+.tpfield-container {
+  margin-bottom: 15px;
+}
 /* footer */
 footer {
   width: 100%;
@@ -761,3 +790,10 @@ footer .copyright {
     padding: 0 10px;
   }
 }
+/* .tpfield {
+  height: 40px;
+  width: 300px;
+  border: 1px solid gray;
+  margin: 5px 0;
+  padding: 5px;
+} */
