@@ -1,11 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Booking</title>
-</head>
-<body>
-  
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2&family=Noto+Sans+TC:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../static/styles/style.css" />
+  </head>
+  <body>
+    <header>
+      <nav class="navbar">
+        <div class="logo-wrapper">
+          <div class="logo">
+            <a href="/" style="text-decoration: none"><h2>台北一日遊</h2></a>
+          </div>
+
+          <ul>
+            <li>預定行程</li>
+            <li class="sign">Loading</li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+    <h3 class="booking-headline Bold19">
+      您好，<span class="username"></span>，待預定的行程如下：
+    </h3>
+    <div class="no-schedule Med16">目前沒有任何待預訂的行程</div>
+    <main class="booking-main">
+      <div class="itinerary-container">
+        <img class="itinerary-img" />
+        <div class="itinerary-info">
+          <div class="delete-trash">
+            <img src="../static/images/delete.png" alt="delete-trash" />
+          </div>
+          <h3 class="Bold16">
+            台北一日遊：<span class="booking-name Bold16"></span>
+          </h3>
+
+          <p class="Bold16">日期： <span class="booking-date"></span></p>
+          <p class="Bold16">時間： <span class="booking-time"></span></p>
+          <p class="Bold16">
+            費用： <span>新台幣 <span class="booking-price"></span> 元</span>
+          </p>
+          <p class="Bold16">地點： <span class="booking-address"></span></p>
+        </div>
+      </div>
+      <div class="single-line under-trash-line"></div>
+      <div class="contact-container">
+        <h3 class="Bold19">您的聯絡資訊</h3>
+        <p>
+          <label class="Med16" for="contact-name">聯絡姓名：</label>
+          <input
+            class="Med16"
+            id="contact-name"
+            name="contact-name"
+            type="text"
+          />
+        </p>
+        <p>
+          <label class="Med16" for="contact-email">連絡信箱：</label>
+          <input
+            class="Med16"
+            id="contact-email"
+            name="contact-email"
+            type="text"
+          />
+        </p>
+        <p>
+          <label class="Med16" for="contact-name">手機號碼：</label>
+          <input class="Med16" type="text" />
+        </p>
+        <p class="Bold16" style="color: #666666">
+          請保持手機暢通，準時到達，導覽人員將用手機與您聯繫，務必留下正確的聯絡方式。
+        </p>
+      </div>
+      <div class="single-line"></div>
+      <div class="payment-container">
+        <h3 class="Bold19">信用卡付款資訊</h3>
+        <p>
+          <label class="Med16" for="contact-name">卡片號碼：</label>
+          <input
+            class="Med16"
+            type="password"
+            placeholder="**** **** **** ****"
+          />
+        </p>
+        <p>
+          <label class="Med16" for="contact-name">過期時間：</label>
+          <input class="Med16" type="text" placeholder="MM/YY" />
+        </p>
+        <p>
+          <label class="Med16" for="contact-name">驗證密碼：</label>
+          <input class="Med16" type="text" placeholder="CVV" />
+        </p>
+      </div>
+      <div class="single-line"></div>
+      <div class="confirm-container">
+        <p class="Bold16" style="color: #666666">總價：新台幣 2000 元</p>
+        <button class="confirm-btn">確認訂購並付款</button>
+      </div>
+    </main>
+
+    <footer>
+      <div class="copyright">COPYRIGHT &copy 2021 台北一日遊</div>
+    </footer>
+    <script defer src="../static/pop_up_dialog.js"></script>
+    <script defer src="../static/booking.js"></script>
+  </body>
 </html>
