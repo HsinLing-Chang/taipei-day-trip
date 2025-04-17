@@ -1,14 +1,25 @@
 getUserData().then((result) => {
   userData = result;
   if (userData) {
-    document.querySelector(".username").textContent = userData.name;
-    document.querySelector("#contact-name").value = userData.name;
-    document.querySelector("#contact-email").value = userData.email;
+    username.textContent = userData.name;
+    contactName.value = userData.name;
+    contactEmail.value = userData.email;
     getBookingData();
   } else {
     window.location = "/";
   }
 });
+let attractionID;
+const bookingName = document.querySelector(".booking-name");
+const bookingDate = document.querySelector(".booking-date");
+const bookingTime = document.querySelector(".booking-time");
+const bookingPrice = document.querySelector(".booking-price");
+const bookingAdress = document.querySelector(".booking-address");
+const bookingImg = document.querySelector(".itinerary-img");
+const username = document.querySelector(".username");
+const contactName = document.querySelector("#contact-name");
+const contactEmail = document.querySelector("#contact-email");
+const contactPhone = document.querySelector("#phone");
 document.querySelector(".delete-trash").addEventListener("click", () => {
   delete_booking();
 });
@@ -34,13 +45,8 @@ async function getBookingData() {
   const data = await response.json();
   if (data.data) {
     const attractionInfo = data.data;
-    const bookingName = document.querySelector(".booking-name");
-    const bookingDate = document.querySelector(".booking-date");
-    const bookingTime = document.querySelector(".booking-time");
-    const bookingPrice = document.querySelector(".booking-price");
-    const bookingAdress = document.querySelector(".booking-address");
-    const bookingImg = document.querySelector(".itinerary-img");
 
+    attractionID = attractionInfo.attraction.id;
     bookingName.textContent = attractionInfo.attraction.name;
     bookingDate.textContent = attractionInfo.date;
     bookingTime.textContent =
