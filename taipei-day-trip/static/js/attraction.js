@@ -19,9 +19,7 @@ const imgLeft = document.querySelector(".img-left");
 const img = document.querySelector(".profile-img");
 const profileForm = document.querySelector(".profile-form");
 async function getData() {
-  const attraction = await fetch(
-    `http://18.180.198.102:8000/api/attraction/${pathname[2]}`
-  );
+  const attraction = await fetch(`/api/attraction/${pathname[2]}`);
   const attractionData = await attraction.json();
   // console.log(attractionData.data);
   attractionTitle.textContent = attractionData.data.name;
@@ -112,7 +110,7 @@ async function bookingAttraction() {
     price: price,
   };
   const encodedForm = JSON.stringify(payload);
-  const response = await fetch("http://18.180.198.102:8000/api/booking", {
+  const response = await fetch("/api/booking", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,

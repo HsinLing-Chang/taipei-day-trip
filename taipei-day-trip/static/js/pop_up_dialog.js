@@ -190,7 +190,7 @@ async function signIn(e) {
 
   const formData = new FormData(this);
   const jsonData = Object.fromEntries(formData.entries());
-  const response = await fetch("http://18.180.198.102:8000/api/user/auth", {
+  const response = await fetch("/api/user/auth", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(jsonData),
@@ -209,7 +209,7 @@ async function signUp(e) {
   e.preventDefault();
   const formData = new FormData(this);
   const jsonData = Object.fromEntries(formData.entries());
-  const response = await fetch("http://18.180.198.102:8000/api/user", {
+  const response = await fetch("/api/user", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -227,7 +227,7 @@ async function signUp(e) {
 }
 // 獲取用戶身分
 window.getUserData = async function () {
-  const response = await fetch("http://18.180.198.102:8000/api/user/auth", {
+  const response = await fetch("/api/user/auth", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -242,6 +242,5 @@ window.getUserData = async function () {
   }
   return data.data;
 };
-
 // console.log(userData);
 // });
