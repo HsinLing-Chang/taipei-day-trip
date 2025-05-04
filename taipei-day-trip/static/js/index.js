@@ -10,7 +10,7 @@ getUserData().then((result) => {
   userData = result;
 });
 async function getMRT() {
-  const mrt = await fetch("http://127.0.0.1:8000/api/mrts");
+  const mrt = await fetch("/api/mrts");
   const mrtData = await mrt.json();
   if (mrtData.data) {
     for (let mrt of mrtData.data) {
