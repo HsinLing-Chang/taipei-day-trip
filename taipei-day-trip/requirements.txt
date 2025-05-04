@@ -7,4 +7,4 @@ python-multipart
 pyjwt
 requests
 passlib[bcrypt]
-import httpx
+httpx
