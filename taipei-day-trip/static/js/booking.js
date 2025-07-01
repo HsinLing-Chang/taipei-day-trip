@@ -24,7 +24,7 @@ document.querySelector(".delete-trash").addEventListener("click", () => {
   delete_booking();
 });
 async function delete_booking() {
-  const response = await fetch("http://18.180.198.102:8000/api/booking", {
+  const response = await fetch("/api/booking", {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -37,7 +37,7 @@ async function delete_booking() {
 }
 
 async function getBookingData() {
-  const response = await fetch("http://18.180.198.102:8000/api/booking", {
+  const response = await fetch("/api/booking", {
     headers: {
       Authorization: `Bearer ${token}`,
     },

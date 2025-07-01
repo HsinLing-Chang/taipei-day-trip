@@ -1,5 +1,8 @@
-import { CONFIG } from "./config.js";
-TPDirect.setupSDK(CONFIG.appID, CONFIG.appKey, "sandbox");
+TPDirect.setupSDK(
+  159816,
+  "app_233yvDOGTFb8zGu7BPX98OmDMhfp115aNOpGAS12UcH8oLyDrG3QyFb7iLZV",
+  "sandbox"
+);
 
 let fields = {
   number: {
@@ -34,7 +37,7 @@ const submitBooking = document.querySelector(".confirm-btn");
 submitBooking.addEventListener("click", onSubmit);
 function onSubmit(event) {
   event.preventDefault();
-  if (!contactName.value || !contactEmail.value || !contactPhone.value) {
+  if (!contactName.value && !contactEmail.value && !contactPhone.value) {
     alert("聯絡資訊不可為空值");
     return;
   }
@@ -80,7 +83,7 @@ function onSubmit(event) {
   });
 }
 async function order(payload) {
-  const response = await fetch("http://18.180.198.102:8000/api/payment", {
+  const response = await fetch("/api/orders", {
     headers: {
       "content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -96,13 +99,10 @@ async function order(payload) {
   }
 }
 async function getOrder(orderNumber) {
-  const response = await fetch(
-    `http://18.180.198.102:8000/api/order?number=${orderNumber}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const response = await fetch(`/api/order/${orderNumber}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   const data = await response.json();
 }

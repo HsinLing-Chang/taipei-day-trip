@@ -10,7 +10,7 @@ getUserData().then((result) => {
   userData = result;
 });
 async function getMRT() {
-  const mrt = await fetch("http://18.180.198.102:8000/api/mrts");
+  const mrt = await fetch("/api/mrts");
   const mrtData = await mrt.json();
   if (mrtData.data) {
     for (let mrt of mrtData.data) {
@@ -45,8 +45,8 @@ async function renderImage(keyword) {
   render = false;
   try {
     baseURL = keyword
-      ? `http://18.180.198.102:8000/api/attractions?page=${page}&keyword=${keyword}`
-      : `http://18.180.198.102:8000/api/attractions?page=${page}`;
+      ? `/api/attractions?page=${page}&keyword=${keyword}`
+      : `/api/attractions?page=${page}`;
     const attractions = await fetch(baseURL);
     const attractionsData = await attractions.json();
     nextPage = attractionsData.nextPage;
