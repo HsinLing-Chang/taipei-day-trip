@@ -27,7 +27,8 @@ def sign_up(formData: sign_up_form, db=Depends(get_db)):
 @router.put("/user/auth")
 def sign_in(formDate: sing_in_form, db=Depends(get_db)):
     user_data = get_user_data_by_email(db, formDate.email)
-    if not user_data and not Hash.verify_password(formDate.password, user_data.get("password")):
+
+    if not user_data or not Hash.verify_password(formDate.password, user_data.get("password")):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="帳號或密碼錯誤，請重新嘗試。")
     token = jwt_encode(user_data)
