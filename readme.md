@@ -2,6 +2,8 @@
 
 A lightweight, user-friendly e-commerce platform that helps travelers and locals explore and book Taipei’s most iconic attractions in a single day.
 
+🔗 Website URL: <https://ppluchuli.com/>
+
 ## UI Overview
 
 ### 1. **Home Page**
@@ -19,7 +21,7 @@ A lightweight, user-friendly e-commerce platform that helps travelers and locals
 ## Key Features
 
 - **Attraction Browsing:**  
-  Browse a list of Taipei’s top attractions with high-resolution thumbnails. Click on any item to view full details.
+  Browse a list of Taipei’s top attractions. Click on any item to view full details.
 
 - **Instant Search:**  
    Search attractions by name or keyword in real time to quickly find your next destination.
@@ -31,7 +33,7 @@ A lightweight, user-friendly e-commerce platform that helps travelers and locals
   Select date, time slot, and ticket type, then add your choices to a reservation list before proceeding to checkout.
 
 - **Secure Payments:**  
-  Integrated with TapPay for seamless credit card processing and PCI-compliant transaction security.
+  Integrated with TapPay for seamless credit card processing.
 
 - **User Account & Itinerary Management:**  
   Member accounts let you view, edit, or cancel your booked tours at any time.
