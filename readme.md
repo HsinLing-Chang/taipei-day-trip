@@ -52,3 +52,20 @@ A lightweight, user-friendly e-commerce platform that helps travelers and locals
 ## System Architecture
 
 ![HomePage](/taipei-day-trip/static/images/demo-structure.png)
+
+## Testing Credentials (for demo purposes only)
+
+### **Demo User Account**
+
+| Field    | Value      |
+| -------- | ---------- |
+| Email    | `test@123` |
+| Password | `test123`  |
+
+### Test Credit Card (TapPay)
+
+| Field           | Value                           |
+| --------------- | ------------------------------- |
+| Card Number     | `4242 4242 4242 4242`           |
+| Expiration Date | Any future date (e.g., `12/29`) |
+| CVV             | `123`                           |

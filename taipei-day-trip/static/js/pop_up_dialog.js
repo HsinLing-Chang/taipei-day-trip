@@ -42,12 +42,14 @@ const emailInput = newElement("input", ["email-signin", "Med16"]);
 emailInput.type = "email";
 emailInput.name = "email";
 emailInput.placeholder = "輸入電子信箱";
+emailInput.value = "test@123";
 emailInput.required = true;
 //password sign-in
 const passwordInput = newElement("input", ["password-signin", "Med16"]);
 passwordInput.type = "password";
 passwordInput.name = "password";
 passwordInput.placeholder = "輸入密碼";
+passwordInput.value = "test123";
 passwordInput.required = true;
 //submit btn
 const submitSignInBtn = newElement("button", null, "登入帳戶");
@@ -72,7 +74,7 @@ body.appendChild(overlayDOM);
 body.appendChild(formContainer);
 
 // const overlayDOM = `<div class="overlay"></div>`;
-const formContainer_signup = newElement("div", ["form-container", "sign-up"]); //最大在這
+const formContainer_signup = newElement("div", ["form-container", "sign-up"]);
 const closeBtnContainerDOM_2 = newElement("div", "close-btn-container");
 const closeBtn_2 = newElement("div", "close-btn");
 closeBtnContainerDOM_2.appendChild(closeBtn_2);
@@ -196,7 +198,7 @@ async function signIn(e) {
     body: JSON.stringify(jsonData),
   });
   const data = await response.json();
-  console.log(data);
+  // console.log(data);
   if (data.error) {
     errorMsgSignIn.textContent = data.message;
   } else if (data.token) {
